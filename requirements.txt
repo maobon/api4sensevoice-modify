@@ -1,0 +1,17 @@
+fastapi
+funasr
+modelscope
+numpy<=1.26.4
+pydantic
+pydantic_settings
+soundfile
+starlette
+torch<=2.3
+torchaudio
+uvicorn
+addict
+datasets
+pillow
+simplejson
+sortedcontainers
+websockets
