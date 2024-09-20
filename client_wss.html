@@ -36,7 +36,9 @@
 <script>
     var recordButton = document.getElementById('recordButton');
     var transcriptionResult = document.getElementById('transcriptionResult');
+
     navigator.getUserMedia = navigator.getUserMedia || navigator.webkitGetUserMedia;
+
     var ws = null;
     var record = null;
     var timeInte = null;
@@ -66,7 +68,7 @@
         var queryString = queryParams.length > 0 ? `?${queryParams.join('&')}` : '';
 
         // ws = new WebSocket(`wss://your_server_address/ws/transcribe${queryString}`);
-
+        // ws = new WebSocket(`ws://172.27.112.3:9000/ws/transcribe${queryString}`);
         ws = new WebSocket(`ws://127.0.0.1:8888/ws/transcribe${queryString}`);
 
         ws.binaryType = 'arraybuffer';
@@ -148,13 +150,16 @@
     }
 
     var Recorder = function(stream) {
+
         var sampleBits = 16; // Sample bits
         var inputSampleRate = 48000; // Input sample rate
         var outputSampleRate = 16000; // Output sample rate
         var channelCount = 1; // Single channel
+
         var context = new AudioContext();
         var audioInput = context.createMediaStreamSource(stream);
         var recorder = context.createScriptProcessor(4096, channelCount, channelCount);
+
         var audioData = {
             size: 0,
             buffer: [],
@@ -208,9 +213,11 @@
             if (outputSampleRate === inputSampleRate) {
                 return buffer;
             }
+
             var sampleRateRatio = inputSampleRate / outputSampleRate;
             var newLength = Math.round(buffer.length / sampleRateRatio);
             var result = new Float32Array(newLength);
+
             var offsetResult = 0;
             var offsetBuffer = 0;
             while (offsetResult < result.length) {
@@ -224,6 +231,7 @@
                 offsetResult++;
                 offsetBuffer = nextOffsetBuffer;
             }
+
             return result;
         }
 

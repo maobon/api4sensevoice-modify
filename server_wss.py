@@ -19,6 +19,8 @@ import os
 from modelscope.pipelines import pipeline
 from modelscope.utils.constant import Tasks
 
+from broadcast import send_udp_broadcast
+
 
 class Config(BaseSettings):
     sv_thr: float = Field(0.29, description="Speaker verification threshold")
@@ -277,6 +279,7 @@ async def websocket_endpoint(websocket: WebSocket):
                 audio_vad = np.append(audio_vad, chunk)
                 #with open("debug.pcm", "ab") as f:
                     #f.write(np.int16(chunk * 32767).tobytes())
+
                 res = model.generate(input=chunk, cache=cache, is_final=False, chunk_size=config.chunk_size_ms)
                 logger.debug(f"vad inference: {res}")
                 if len(res[0]["value"]):
@@ -304,7 +307,14 @@ async def websocket_endpoint(websocket: WebSocket):
                                     msg=f"success",
                                     data=format_str_v3(result[0]['text'])
                                 )
-                                await websocket.send_json(response.model_dump())
+
+                                dump_data = response.model_dump()
+                                print(dump_data)
+
+                                send_udp_broadcast(dump_data)
+
+                                await websocket.send_json(dump_data)
+
     except WebSocketDisconnect:
         logger.info("WebSocket disconnected")
     except Exception as e:
